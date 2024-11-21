@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch and Download</title>
+</head>
+
+<body>
+    <textarea id="inputField" rows="10" cols="50" placeholder="Enter text to send">hello how are you doing today?
+I am good, thanks for asking!</textarea>
+    <button onclick="fetchAndDownload()">Submit</button>
+    <select id="voice">
+        <option value="af-ZA">Afrikaans</option>
+        <option value="sq">Albanian</option>
+        <option value="ar-AE">Arabic</option>
+        <option value="hy">Armenian</option>
+        <option value="bn-BD">Bengali (Bangladesh)</option>
+        <option value="bn-IN">Bengali (India)</option>
+        <option value="bs">Bosnian</option>
+        <option value="my">Burmese (Myanmar)</option>
+        <option value="ca-ES">Catalan</option>
+        <option value="cmn-Hant-TW">Chinese</option>
+        <option value="hr-HR">Croatian</option>
+        <option value="cs-CZ">Czech</option>
+        <option value="da-DK">Danish</option>
+        <option value="nl-NL">Dutch</option>
+        <option value="en-AU">English (Australia)</option>
+        <option value="en-GB">English (United Kingdom)</option>
+        <option value="en-US" selected>English (United States)</option>
+        <option value="eo">Esperanto</option>
+        <option value="et">Estonian</option>
+        <option value="fil-PH">Filipino</option>
+        <option value="fi-FI">Finnish</option>
+        <option value="fr-FR">French</option>
+        <option value="fr-CA">French (Canada)</option>
+        <option value="de-DE">German</option>
+        <option value="el-GR">Greek</option>
+        <option value="gu">Gujarati</option>
+        <option value="hi-IN">Hindi</option>
+        <option value="hu-HU">Hungarian</option>
+        <option value="is-IS">Icelandic</option>
+        <option value="id-ID">Indonesian</option>
+        <option value="it-IT">Italian</option>
+        <option value="ja-JP">Japanese (Japan)</option>
+        <option value="kn">Kannada</option>
+        <option value="km">Khmer</option>
+        <option value="ko-KR">Korean</option>
+        <option value="la">Latin</option>
+        <option value="lv">Latvian</option>
+        <option value="mk">Macedonian</option>
+        <option value="ml">Malayalam</option>
+        <option value="mr">Marathi</option>
+        <option value="ne">Nepali</option>
+        <option value="nb-NO">Norwegian</option>
+        <option value="pl-PL">Polish</option>
+        <option value="pt-BR">Portuguese</option>
+        <option value="ro-RO">Romanian</option>
+        <option value="ru-RU">Russian</option>
+        <option value="sr-RS">Serbian</option>
+        <option value="si">Sinhala</option>
+        <option value="sk-SK">Slovak</option>
+        <option value="es-MX">Spanish (Mexico)</option>
+        <option value="es-ES">Spanish (Spain)</option>
+        <option value="sw">Swahili</option>
+        <option value="sv-SE">Swedish</option>
+        <option value="ta">Tamil</option>
+        <option value="te">Telugu</option>
+        <option value="th-TH">Thai</option>
+        <option value="tr-TR">Turkish</option>
+        <option value="uk-UA">Ukrainian</option>
+        <option value="ur">Urdu</option>
+        <option value="vi-VN">Vietnamese</option>
+        <option value="cy">Welsh</option>
+    </select>
+
+    <script>
+        async function fetchAndDownload() {
+            const inputText = document.getElementById('inputField').value;
+            const words = inputText.split(/\n/).filter(word => word.trim() !== ''); // Split text into array of words
+
+            var selectElement = document.getElementById("voice");
+            var selectedVoice = selectElement.value;
+
+            for (const word of words) {
+                const url = 'https://api.soundoftext.com/sounds';
+                const payload = {
+                    engine: 'Google',
+                    data: {
+                        text: word,
+                        voice: selectedVoice
+                    }
+                };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const responseData = await response.json();
+                console.log('Input:', word, "\t\tResponse: id:", responseData.id);
+
+                // Download the audio file
+                downloadFile("https://files.soundoftext.com/" + responseData.id + ".mp3", word + ".mp3");
+            }
+        }
+
+        // Function to download a file using the proxy server
+        function downloadFile(url, filename) {
+            proxyUrl = 'http://localhost:3000/proxy';
+            fetch(proxyUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url, filename })
+            }).then(response => {
+                console.log("Input:", filename, "\tResponse: Download successfull");
+            }).catch(err => {
+                console.log("Input:", filename, "\tResponse: Download failed");
+                console.log("Download of ", filename, "failed");
+            });
+        }
+
+    </script>
+</body>
+
+</html>
